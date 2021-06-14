@@ -152,10 +152,23 @@ template<typename K, typename V>
 class RBT
 {
 public:
-    RBT();
-    ~RBT();
+    RBT()
+    {
+        this->root = NULL;
+    }
+
+    ~RBT()
+    {
+        clean(this->root);
+    }
+
     V get(const K& key) const;
-    void put(const K& key, const V& val);
+
+    void put(const K& key, const V& val)
+    {
+        this->root = put(this->root, key, val);
+    }
+
     void del(const K& key);
     bool contain(const K& key) const;
     int size() const;
@@ -174,7 +187,29 @@ protected:
     void filpNode(Node<K,V>* node);
     void reverseFlipNode(Node<K,V>* node);
     Node<K,V>* fixNode(Node<K,V>* node);
-    Node<K,V>* put(Node<K,V>* node, const K& key, const V& val);
+
+    Node<K,V>* put(Node<K,V>* node, const K& key, const V& val)
+    {
+        if (node == NULL)
+            return new Node<K,V>(key, val);
+        if (key > node->key)
+            node->rNode = put(node->rNode, key, val);
+        else if (key < node->key)
+            node->lNode = put(node->lNode, key, val);
+        else
+            node->val = val;
+
+        if (isRed(node->rNode) && !isRed(node->lNode))
+            node = rotateLeft(node);
+        if (node->lNode != NULL && isRed(node->lNode) && isRed(node->lNode->lNode))
+            node = rotateRight(node);
+        if (isRed(node->lNode) && isRed(node->rNode))
+            filpNode(node);
+
+        node->N = size(node->lNode) + size(node->rNode) + 1;
+        return node;
+    }
+
     V get(Node<K,V>* node, const K& key) const;
     bool contain(Node<K,V>* node, const K& key) const;
     Node<K,V>* del(Node<K,V>* node, const K& key);
@@ -184,7 +219,15 @@ protected:
     K minKey(Node<K,V>* node) const;
     Node<K,V>* delMin(Node<K,V>* node);
     Node<K,V>* delMax(Node<K,V>* node);
-    bool isRed(Node<K,V>* node);
+
+    bool isRed(Node<K,V>* node)
+    {
+        if (node == NULL || node->color == BLACK)
+            return false;
+        else
+            return true;
+    }
+
     int countLevel(Node<K,V>* node) const;
 };
 
