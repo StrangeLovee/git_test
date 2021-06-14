@@ -162,23 +162,47 @@ public:
         clean(this->root);
     }
 
-    V get(const K& key) const;
+    V get(const K& key) const
+    {
+        return get(this->root, key);
+    }
 
     void put(const K& key, const V& val)
     {
         this->root = put(this->root, key, val);
     }
 
-    void del(const K& key);
+    void del(const K& key)
+    {
+        this->root = del(this->root, key);
+    }
+
     bool contain(const K& key) const;
-    int size() const;
-    void clean();
-    void print() const;
+
+    int size() const
+    {
+        return size(this->root);
+    }
+    
+    void clean()
+    {
+        clean(this->root);
+        this->root = NULL;
+    }
+
+    void print() const
+    {
+        print(this->root);
+    }
 
     K minKey() const;
     void delMin();
     void delMax();
-    int countLevel() const;
+
+    int countLevel() const
+    {
+        return countLevel(this->root);
+    }
 protected:
     Node<K,V>* root;
 
@@ -210,12 +234,46 @@ protected:
         return node;
     }
 
-    V get(Node<K,V>* node, const K& key) const;
+    V get(Node<K,V>* node, const K& key) const
+    {
+        if (node == NULL)
+            return NULL;
+        if (key > node->key)
+            return get(node->rNode, key);
+        else if (key < node->key)
+            return get(node->lNode, key);
+        else
+            return node->val;
+    }
+
     bool contain(Node<K,V>* node, const K& key) const;
     Node<K,V>* del(Node<K,V>* node, const K& key);
-    void clean(Node<K,V>* node);
-    int size(Node<K,V>* node) const;
-    void print(Node<K,V>* node) const;
+
+    void clean(Node<K,V>* node)
+    {
+        if (node == NULL)
+            return ;
+        clean(node->lNode);
+        clean(node->rNode);
+        delete node;
+    }
+
+    int size(Node<K,V>* node) const
+    {
+        if (node == NULL)
+            return 0;
+        return size(node->rNode) + size(node->lNode) + 1;
+    }
+
+    void print(Node<K,V>* node) const
+    {
+        if (node == NULL)
+            return ;
+        print(node->lNode);
+        std::cout << node->key << " : " << node->val << "  :  " << node->N << "  :  " << node->color << std::endl;
+        print(node->rNode);
+    }
+    
     K minKey(Node<K,V>* node) const;
     Node<K,V>* delMin(Node<K,V>* node);
     Node<K,V>* delMax(Node<K,V>* node);
