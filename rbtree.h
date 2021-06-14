@@ -195,9 +195,20 @@ public:
         print(this->root);
     }
 
-    K minKey() const;
-    void delMin();
-    void delMax();
+    K minKey() const
+    {
+        return minKey(this->root);
+    }
+
+    void delMin()
+    {
+        this->root = delMin(this->root);
+    }
+
+    void delMax()
+    {
+        this->root = delMax(this->root);
+    }
 
     int countLevel() const
     {
@@ -273,10 +284,74 @@ protected:
         std::cout << node->key << " : " << node->val << "  :  " << node->N << "  :  " << node->color << std::endl;
         print(node->rNode);
     }
-    
-    K minKey(Node<K,V>* node) const;
-    Node<K,V>* delMin(Node<K,V>* node);
-    Node<K,V>* delMax(Node<K,V>* node);
+
+    K minKey(Node<K,V>* node) const
+    {
+        if (node->lNode == NULL)
+            return node->key;
+        else
+            minKey(node->lNode);
+    }
+
+    Node<K,V>* delMin(Node<K,V>* node)
+    {
+        if (node == NULL)
+            return NULL;
+        if (node->lNode == NULL)
+        {
+            delete node;
+            return NULL;
+        }
+        if (!isRed(this->root->lNode) && !isRed(this->root->rNode))
+                this->root = RED;
+        if (isRed(node) && !isRed(node->lNode) && !isRed(node->lNode->lNode))
+            reverseFlipNode(node);
+        if (node->rNode != NULL && isRed(node->rNode) && isRed(node->rNode->lNode))
+            node = fixNode(node);
+
+        node->lNode = delMin(node->lNode);
+
+        //恢复红黑树的性质
+        if (isRed(node->lNode) && isRed(node->rNode))
+            filpNode(node);
+        if (!isRed(node->lNode) && isRed(node->rNode))
+            node = rotateLeft(node);
+
+        node->N = size(node->lNode) + size(node->rNode) + 1;
+        return node;
+    }
+
+    Node<K,V>* delMax(Node<K,V>* node)
+    {
+        if (node == NULL)
+            return NULL;
+        if (node->rNode == NULL)
+        {
+            if (isRed(node->lNode))
+                node = rotateRight(node);
+            else
+            {
+                    delete node;
+                    return NULL;
+            }
+        }
+        if (!isRed(this->root->lNode) && !isRed(this->root->rNode))
+            this->root = RED;
+        if (isRed(node->lNode) && !isRed(node->rNode->lNode))
+            node = rotateRight(node);
+        if (isRed(node) && !isRed(node->lNode) && !isRed(node->rNode->lNode))
+            reverseFlipNode(node);
+
+        node->rNode = delMax(node->rNode);
+
+        if (isRed(node->lNode) && isRed(node->rNode))
+            filpNode(node);
+        if (isRed(node->rNode) && !isRed(node->lNode))
+            node = rotateLeft(node);
+
+        node->N = size(node->lNode) + size(node->rNode) + 1;
+        return node;
+    }
 
     bool isRed(Node<K,V>* node)
     {
