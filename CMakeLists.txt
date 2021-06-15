@@ -4,4 +4,5 @@ set(SRC Test.cpp)
 
 project(RB_TREE)
 
-add_executable(TEST_RB_TREE Test.cpp)
+#编译SRC变量所代表的源代码，生成可执行文件
+add_executable(TEST_RB_TREE $(SRC))
