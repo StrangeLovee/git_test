@@ -1,3 +1,4 @@
+#CMake最小版本要求
 cmake_minimum_required(VERSION 2.0.0)
 
 #定义SRC变量
